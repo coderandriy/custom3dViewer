@@ -3,60 +3,67 @@ jQuery(document).ready(function ($) {
      * 
      * Hide Modal
      */
-    $(".close", "#3DViewModal").click(function () {
-        document.getElementById('3DViewModal').classList.add("hide");
+    $(".close", "#View3DModal").click(function () {
+        document.getElementById('View3DModal').classList.add("hide");
         /**
          * 
          * remove Modal Content
          */
         const modalBody = document.getElementById('modelContainer');
         modalBody.innerHTML = "";
-        document.querySelector(".modal-custom-3d .loadingScreen").style.display = "none";
-        document.querySelector(".animationController").style.display = "none";
+        document.querySelector("#View3DModal .loadingScreen").style.display = "none";
+        document.querySelector("#View3DModal .animationController").style.display = "none";
     });
     document.getElementById("confirmDecodeYes").addEventListener('click', downloadDecodeFile);
     document.getElementById("confirmDecodeNo").addEventListener('click', downloadOriginalFile);
-    document.querySelectorAll(".animationController").forEach(element => {
-        element.style.display = "none";
-    });
-    document.querySelector(".animationController #up-btn").addEventListener('click', function() {
-        this.classList.toggle('active');
-        changeMesh();
-    });
-    document.querySelector(".animationController #lo-btn").addEventListener('click', function() {
-        this.classList.toggle('active');
-        changeMesh();
-    });
-    document.querySelector(".animationController #animateSlider").addEventListener('input', function() {
-        changeMesh();
-      });
-    document.querySelector(".animationController #meshPlayBtn").addEventListener('click', function() {
-        this.classList.toggle('active');
-        if(meshPlay == null) {
-            meshPlay = setInterval(function() {
-                document.querySelector(".animationController #animateSlider").value++;
-                if(Number(document.querySelector(".animationController #animateSlider").value) >= Number(document.querySelector(".animationController #animateSlider").max)){
-                    document.querySelector(".animationController #meshPlayBtn").classList.remove('active');
-                    clearInterval(meshPlay);
-                    meshPlay = null;
-                }
-                changeMesh()
-            }, 400)
-        } else {
-            clearInterval(meshPlay);
-            meshPlay = null;
-            changeMesh();
-        }
-    });
-    var encodedfileUrl = '', Gurlarray = [], loadedMeshes = {}, meshPlay;
+    // document.querySelectorAll(".animationController .up-btn").forEach(element => {
+    //     element.addEventListener('click', function() {
+    //         this.classList.toggle('active');
+    //         // changeMesh();
+    //     });
+    // })
+    // document.querySelectorAll(".animationController .lo-btn").forEach(element => {
+    //     element.addEventListener('click', function() {
+    //         this.classList.toggle('active');
+    //         // changeMesh();
+    //     });
+    // })
+    // document.querySelector(".animationController #animateSlider").addEventListener('input', function() {
+    //     changeMesh();
+    //   });
+    var encodedfileUrl = '', Gurlarray = [];
+    loadedMeshes = {};
 });
 
+var loadedMeshes = {}, meshPlay;
+
+function playMesh(url) {
+    var playButtonStatus = document.querySelector('div[data-url="'+ url +'"] .animationController .meshPlayBtn');
+    let slider = document.querySelector('div[data-url="'+ url +'"] .animationController .animateSlider');
+    playButtonStatus.classList.toggle('active');
+    clearInterval(meshPlay);
+    meshPlay = null;
+    if(playButtonStatus.classList.contains('active')) {
+        if(slider.value == slider.max) {
+            slider.value = 0;
+        }
+        meshPlay = setInterval(function() {
+            slider.value++;
+            if(Number(slider.value) >= Number(slider.max)){
+                playButtonStatus.classList.remove('active');
+                clearInterval(meshPlay);
+                meshPlay = null;
+            }
+            changeMesh(url)
+        }, 400)
+    }
+}
 
 function open3DModelDialog(url) {
-    document.getElementById('3DViewModal').classList.remove("hide");
+    document.getElementById('View3DModal').classList.remove("hide");
     const baseUrl = `${window.location.protocol}//${window.location.host}/`;
     const modalBody = document.getElementById('modelContainer');
-
+    modalBody.parentElement.setAttribute("data-url", url);
     // Check for the existence of necessary elements
     if (!modalBody) {
         return;
@@ -71,19 +78,25 @@ function open3DModelDialog(url) {
      */
 
     view3DModelR(url, modalBody)
-    
+    document.querySelector("#View3DModal .up-btn").setAttribute('onclick', 'changeMesh("'+url+'", event)')
+    document.querySelector("#View3DModal .lo-btn").setAttribute('onclick', 'changeMesh("'+url+'", event)')
+    document.querySelector("#View3DModal .meshPlayBtn").setAttribute('onclick', 'playMesh("'+url+'", event)')
+    document.querySelector("#View3DModal .animateSlider").setAttribute('oninput', 'changeMesh("'+url+'")')
 }
 
-function changeMesh() {
+function changeMesh(url, event) {
+    if(event != undefined)
+        event.target.classList.toggle('active');
+    const meshToChange = loadedMeshes[url]
     let buttonCheck = 0;
-    if(document.querySelector(".animationController #up-btn").classList.contains('active')) {
+    if(document.querySelector('div[data-url="'+ url +'"] .animationController .up-btn').classList.contains('active')) {
         buttonCheck += 2;
     }
-    if(document.querySelector(".animationController #lo-btn").classList.contains('active')) {
+    if(document.querySelector('div[data-url="'+ url +'"] .animationController .lo-btn').classList.contains('active')) {
         buttonCheck += 1;
     }
-    let meshnumber = document.querySelector(".animationController #animateSlider").value;
-    for (const [filename, mesh] of Object.entries(loadedMeshes)) {
+    let meshnumber = document.querySelector('div[data-url="'+ url +'"] .animationController .animateSlider').value;
+    for (const [filename, mesh] of Object.entries(meshToChange)) {
         mesh.visible = false;
         if(Number(filename.replace(/\D/g, "")) == meshnumber){
             if(buttonCheck == 3) {
@@ -96,7 +109,7 @@ function changeMesh() {
         }
             
     }
-    document.querySelector(".animationController #currentStep").innerHTML = Number(meshnumber) + 1;
+    document.querySelector('div[data-url="'+ url +'"] .animationController .currentStep').innerHTML = Number(meshnumber) + 1;
 }
 
 function downloadModel(url) {
@@ -156,7 +169,6 @@ function downloadOriginalFile() {
 
 function view3DModelR(url, container) {
     const fileBuffers = {};
-    loadedMeshes = {};
     let camera, scene, renderer, controls, Gloader;
     
     const stlLoader = new STLLoader();
@@ -181,19 +193,42 @@ function view3DModelR(url, container) {
     scene.background = new Color(0xffffff);
 
     // Lights
-    const ambientLight = new AmbientLight(0xffffff, 0.7); // Soft ambient light
+    // const ambientLight = new AmbientLight(0xffffff, 1.3); // Soft ambient light
+    // scene.add(ambientLight);
+
+    // const hemisphereLight = new HemisphereLight(0xffffff, 0xaaaaaa, 1.3); // Sky to ground light
+    // hemisphereLight.position.set(-50, -200, -50);
+    // scene.add(hemisphereLight);
+
+    // const directionalLight = new DirectionalLight(0xffffff, 1);
+    // directionalLight.position.set(0, -70, 70);
+    // scene.add(directionalLight);
+    // const directionalLight2 = new DirectionalLight(0xffffff, 1);
+    // directionalLight2.position.set(0, 90, 20);
+    // scene.add(directionalLight2);
+
+    // const keyLight = new DirectionalLight(0xffffff, 1);
+    // keyLight.position.set(-10, 10, 35);
+    // scene.add(keyLight);
+    // const kLhelper = new DirectionalLightHelper(keyLight, 2);
+    // scene.add(kLhelper);
+
+    // const fillLight = new DirectionalLight(0xffffff, 0.5);
+    // fillLight.position.set(20, 10, 25);
+    // scene.add(fillLight);
+    // const fLhelper = new DirectionalLightHelper(fillLight, 2);
+    // scene.add(fLhelper);
+
+    // const backLight = new DirectionalLight(0xffffff, 1.5);
+    // backLight.position.set(2, -65, 30);
+    // scene.add(backLight);
+    // const bLhelper = new DirectionalLightHelper(backLight, 2);
+    // scene.add(bLhelper);
+
+    const ambientLight = new AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
-    const hemisphereLight = new HemisphereLight(0xffffff, 0xaaaaaa, 1); // Sky to ground light
-    hemisphereLight.position.set(-50, -200, -50);
-    scene.add(hemisphereLight);
 
-    const directionalLight = new DirectionalLight(0xffffff, 3);
-    directionalLight.position.set(0, -70, 30);
-    scene.add(directionalLight);
-    const directionalLight2 = new DirectionalLight(0xffffff, 3);
-    directionalLight2.position.set(0, 70, 0);
-    scene.add(directionalLight2);
 
     async function fetchAndUnzip(url) {
         try {
@@ -231,10 +266,11 @@ function view3DModelR(url, container) {
     }
 
     if(extension == "pac") {
-        document.querySelector(".modal-custom-3d .loadingScreen").style.display = "flex";
+        document.querySelector('div[data-url="'+ url +'"] .loadingScreen').style.display = "flex";
         
         fetchAndUnzip(url)
 		.then((result) => {
+            loadedMeshes[url] = {}
             const entries = Object.entries(fileBuffers);
             for (const [index, [filename, buffer]] of entries.entries()) {
                 (async () => {
@@ -248,17 +284,25 @@ function view3DModelR(url, container) {
             
                         let material;
                         if (geometry.attributes.color) {
-                            material = new MeshPhongMaterial({ vertexColors: true, emissive: 5, shininess: 5, side: DoubleSide });
+                            material = new MeshPhongMaterial({ vertexColors: true, side: DoubleSide });
                         } else {
-                            material = new MeshPhongMaterial({ color: 0xdddddd, emissive: 5, shininess: 5, side: DoubleSide });
+                            material = new MeshPhongMaterial({ color: 0x7DCBFA, side: DoubleSide });
                         }
             
+                        material.reflectivity = 0.7; // Example value for reflectivity
+
+                        // Adding specular highlights
+                        material.shininess = 10; // value for shininess
+                        material.flatShading = false;
+                        material.needsUpdate = true;
+
                         const mesh = new Mesh(geometry, material);
             
                         geometry.computeBoundingBox();
                         const bbox = geometry.boundingBox;
                         const center = bbox.getCenter(new Vector3());
                         mesh.position.sub(center);
+                        mesh.castShadow = true;
                         const height = bbox.max.z - bbox.min.z;
                         
                         let spacing = 2;
@@ -274,11 +318,11 @@ function view3DModelR(url, container) {
                         } else {
                             mesh.visible = false;
                         }
-                        loadedMeshes[filename] = mesh;
+                        loadedMeshes[url][filename] = mesh;
                         if (index === entries.length - 1) {
                             //Load Complete Action
-                            document.querySelector(".animationController").style.display = "block";
-                            document.querySelector(".modal-custom-3d .loadingScreen").style.display = "none";
+                            document.querySelector('div[data-url="'+ url +'"] .animationController').style.display = "block";
+                            document.querySelector('div[data-url="'+ url +'"] .loadingScreen').style.display = "none";
                         }
                     } catch (error) {
                         console.error("Error parsing geometry for file:", filename, "Error:", error);
@@ -288,10 +332,10 @@ function view3DModelR(url, container) {
             }
             
             const mesheslength = Object.keys(fileBuffers).length;
-            document.querySelector(".animationController #animateSlider").max = Math.floor(mesheslength / 2 - 1);
-            document.querySelector(".animationController #animateSlider").value = 0;
-            document.querySelector(".animationController #maxStep").innerHTML = Math.floor(mesheslength / 2 );
-            document.querySelector(".animationController #currentStep").innerHTML = 1;
+            document.querySelector('div[data-url="'+ url +'"] .animationController .animateSlider').max = Math.floor(mesheslength / 2 - 1);
+            document.querySelector('div[data-url="'+ url +'"] .animationController .animateSlider').value = 0;
+            document.querySelector('div[data-url="'+ url +'"] .animationController .maxStep').innerHTML = Math.floor(mesheslength / 2 );
+            document.querySelector('div[data-url="'+ url +'"] .animationController .currentStep').innerHTML = 1;
 
 		})
         .catch (error => {
@@ -303,18 +347,32 @@ function view3DModelR(url, container) {
             geometry.computeVertexNormals();
             let material
             if(extension == "stl") {
-                material = new MeshPhongMaterial({ color: 0x33ccff, emissive: 5, shininess : 5, side: DoubleSide});
+                material = new MeshPhysicalMaterial({ color: 0x85E5FF, side: DoubleSide});
+                material.specular = new Color(0x85E5FF);
             }else if (geometry.attributes.color) {
-                material = new MeshPhongMaterial({ vertexColors: true, emissive: 5, shininess : 5, side: DoubleSide });
+                material = new MeshPhongMaterial({ vertexColors: true, side: DoubleSide });
             } else {
-                material = new MeshPhongMaterial({ color: 0xdddddd, emissive: 5, shininess : 5, side: DoubleSide });
+                material = new MeshPhongMaterial({ color: 0x85E5FF, side: DoubleSide });
+                material.specular = new Color(0x85E5FF);
             }
+
+            // Adjusting environment light
+			material.reflectivity = 0.7; // Example value for reflectivity
+
+            // Adding specular highlights
+            material.flatShading = false;
+            material.reflectivity = 0.1;
+            material.roughness = 0;
+            material.roughness = 0;
+            material.IOR = 1.2;
+            material.needsUpdate = true;
     
             const mesh = new Mesh(geometry, material);
             geometry.computeBoundingBox();
             const bbox = geometry.boundingBox;
             const center = bbox.getCenter(new Vector3());
             mesh.position.sub(center);
+			mesh.castShadow = true;
             scene.add(mesh);
         });
     }

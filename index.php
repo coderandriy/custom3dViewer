@@ -38,22 +38,20 @@ function gviewer_shortcode($atts)
 
     ob_start();
 ?>
-    <div style="border: 1px solid #CCC; display: inline-block; width: <?php echo $width; ?>px; height: <?php echo $height; ?>px; position: relative" >
-        <div class="customized3dViewer" data-url="<?php echo $file; ?>"></div>
-        <div style = "position: relative">
-            <div class="loadingScreen">
+    <div style="border: 1px solid #CCC; display: inline-block; width: <?php echo $width; ?>px; height: <?php echo $height+2; ?>px; position: relative"  data-url="<?php echo $file; ?>">
+        <div class="customized3dViewer" style="width: 100%; height: <?php echo $height; ?>px;" data-url="<?php echo $file; ?>"></div>
+            <div class="loadingScreen" style="position: absolute; top: 0px; width: 100%; height: 100%">
                 <img class="gif-image" src=<?php echo plugin_dir_url(__FILE__) . 'js/icon/loading.gif' ?> alt="Centered GIF Image">
             </div>
-            <div class = "animationController">
-                <button class="active" id="up-btn">U</button>
-                <button class="active" id="lo-btn">L</button>
-                <button id="meshPlayBtn"><i class='gcis gci-play'></i></button>
-                <input type = "range" min = "0" max = "50" id="animateSlider">
+            <div class = "animationController" style="position: absolute; bottom: 0px; width: 100%; background-color: rgba(255,255,255, 0.5)">
+                <button class="active up-btn" onclick="changeMesh('<?php echo $file; ?>', event)">U</button>
+                <button class="active lo-btn" onclick="changeMesh('<?php echo $file; ?>', event)">L</button>
+                <button class="meshPlayBtn" onclick="playMesh('<?php echo $file; ?>', event)"><i class='gcis gci-play'></i></button>
+                <input type = "range" min = "0" max = "50" class="animateSlider" oninput = "changeMesh('<?php echo $file; ?>')">
                 <div style="display:inline-block; position: relative; top: -3px">
-                    <span id="currentStep">1</span>/<span id="maxStep">50</span>
+                    <span class="currentStep">1</span>/<span class="maxStep">50</span>
                 </div>
             </div>
-        </div>
     </div>
 	<!-- <script>
 		let customPluginDiv = document.getElementById('customized3dViewer');
@@ -87,7 +85,7 @@ add_action('wp_enqueue_scripts', 'custom_3d_viewer_enqueue_scripts');
 
 function three_scripts()
 {
-    wp_enqueue_style('custom3d-css', plugin_dir_url(__FILE__) . 'css/custom3dviewer.css');
+    wp_enqueue_style('custom3d-css', plugin_dir_url(__FILE__) . 'assets/custom3dviewer.css', null, true);
     wp_enqueue_script('three_scripts', plugin_dir_url(__FILE__) . 'js/three.js', array('jquery'), null, true);
     wp_enqueue_script('draco_loader', plugin_dir_url(__FILE__) . 'js/DRACOLoader.js', array('jquery'), null, true);
     wp_enqueue_script('stl_loader', plugin_dir_url(__FILE__) . 'js/STLLoader.js', array('jquery'), null, true);
@@ -213,7 +211,7 @@ function mytheme_add_3d_model_modal()
         
     </style>
     <!-- Modal HTML Structure -->
-    <div class="modal-custom-3d hide" id="3DViewModal">
+    <div class="modal-custom-3d hide" id="View3DModal">
         
         <div class="modal-dialog modal-lg modal-custom-inner" role="document">
             <div class="modal-content">
@@ -231,12 +229,12 @@ function mytheme_add_3d_model_modal()
                         
                     </div>
                     <div class = "animationController">
-                        <button class="active" id="up-btn">U</button>
-                        <button class="active" id="lo-btn">L</button>
-                        <button id="meshPlayBtn"><i class='gcis gci-play'></i></button>
-                        <input type = "range" min = "0" max = "50" id="animateSlider">
+                        <button class="active up-btn">U</button>
+                        <button class="active lo-btn">L</button>
+                        <button class="meshPlayBtn"><i class='gcis gci-play'></i></button>
+                        <input type = "range" min = "0" max = "50" class="animateSlider">
                         <div style="display:inline-block; position: relative; top: -3px">
-                            <span id="currentStep">1</span>/<span id="maxStep">50</span>
+                            <span class="currentStep">1</span>/<span class="maxStep">50</span>
                         </div>
                     </div>
                 </div>
