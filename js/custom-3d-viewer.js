@@ -193,42 +193,59 @@ function view3DModelR(url, container) {
     scene.background = new Color(0xffffff);
 
     // Lights
-    // const ambientLight = new AmbientLight(0xffffff, 1.3); // Soft ambient light
-    // scene.add(ambientLight);
+    if (extension == "stl") {
+        const keyLight = new DirectionalLight(0xffffff, 2.5);
+        keyLight.position.set(-10, 10, 35);
+        scene.add(keyLight);
 
-    // const hemisphereLight = new HemisphereLight(0xffffff, 0xaaaaaa, 1.3); // Sky to ground light
-    // hemisphereLight.position.set(-50, -200, -50);
-    // scene.add(hemisphereLight);
+        const fillLight = new DirectionalLight(0xffffff, 2.5);
+        fillLight.position.set(20, 10, 25);
+        scene.add(fillLight);
 
-    // const directionalLight = new DirectionalLight(0xffffff, 1);
-    // directionalLight.position.set(0, -70, 70);
-    // scene.add(directionalLight);
-    // const directionalLight2 = new DirectionalLight(0xffffff, 1);
-    // directionalLight2.position.set(0, 90, 20);
-    // scene.add(directionalLight2);
+        const backLight = new DirectionalLight(0xffffff, 3.5);
+        backLight.position.set(2, -65, 30);
+        scene.add(backLight);
 
-    // const keyLight = new DirectionalLight(0xffffff, 1);
-    // keyLight.position.set(-10, 10, 35);
-    // scene.add(keyLight);
-    // const kLhelper = new DirectionalLightHelper(keyLight, 2);
-    // scene.add(kLhelper);
+        const ambientLight = new AmbientLight(0x85E5FF, 0.2);
+        scene.add(ambientLight);
 
-    // const fillLight = new DirectionalLight(0xffffff, 0.5);
-    // fillLight.position.set(20, 10, 25);
-    // scene.add(fillLight);
-    // const fLhelper = new DirectionalLightHelper(fillLight, 2);
-    // scene.add(fLhelper);
+        const dbackLight12 = new DirectionalLight(0xffffff, 2.5);
+        dbackLight12.position.set(-30, 10, -35);
+        scene.add(dbackLight12);
 
-    // const backLight = new DirectionalLight(0xffffff, 1.5);
-    // backLight.position.set(2, -65, 30);
-    // scene.add(backLight);
-    // const bLhelper = new DirectionalLightHelper(backLight, 2);
-    // scene.add(bLhelper);
+        const dbackLight2 = new DirectionalLight(0xffffff, 2.5);
+        dbackLight2.position.set(30, 10, -35);
+        scene.add(dbackLight2);
 
-    const ambientLight = new AmbientLight(0xffffff, 1);
-    scene.add(ambientLight);
+    } else {
 
-
+        const keyLight = new DirectionalLight(0xffffff, 1.5);
+        keyLight.position.set(0, 0, 70);
+        scene.add(keyLight);
+    
+        const backLight3 = new DirectionalLight(0xffffff, 1.5);
+        backLight3.position.set(0, -100, 30);
+        scene.add(backLight3);
+    
+        const backLight4 = new DirectionalLight(0xffffff, 1.5);
+        backLight4.position.set(200, -100, 30);
+        scene.add(backLight4);
+    
+        const backLight = new DirectionalLight(0xffffff, 1.5);
+        backLight.position.set(-200, -100, 30);
+        scene.add(backLight);
+    
+        const backLight2 = new DirectionalLight(0xffffff, 1.5);
+        backLight2.position.set(0, 100, -30);
+        scene.add(backLight2);
+    
+        const dbackLight12 = new DirectionalLight(0xffffff, 1.5);
+        dbackLight12.position.set(0, 0, -30);
+        scene.add(dbackLight12);
+        
+        const ambientLight = new AmbientLight(0x85E5FF, 0.2);
+        scene.add(ambientLight);
+    }
 
     async function fetchAndUnzip(url) {
         try {
@@ -347,25 +364,25 @@ function view3DModelR(url, container) {
             geometry.computeVertexNormals();
             let material
             if(extension == "stl") {
-                material = new MeshPhysicalMaterial({ color: 0x85E5FF, side: DoubleSide});
-                material.specular = new Color(0x85E5FF);
+                material = new MeshPhongMaterial({ color: 0x2E75B6, side: DoubleSide});
+                material.specular = new Color(0x2E75B6);
             }else if (geometry.attributes.color) {
                 material = new MeshPhongMaterial({ vertexColors: true, side: DoubleSide });
             } else {
-                material = new MeshPhongMaterial({ color: 0x85E5FF, side: DoubleSide });
-                material.specular = new Color(0x85E5FF);
+                material = new MeshPhongMaterial({ color: 0x2E75B6, side: DoubleSide });
             }
 
             // Adjusting environment light
-			material.reflectivity = 0.7; // Example value for reflectivity
-
-            // Adding specular highlights
+            if(extension == "stl"){
+                material.specular = new Color(0x3382C9);
+                material.shininess = 5;
+            }
+			material.reflectivity = 0.1;
+			material.metalness = 0;
+			material.roughness = 0;
+            // material.IOR = 1.2;
             material.flatShading = false;
-            material.reflectivity = 0.1;
-            material.roughness = 0;
-            material.roughness = 0;
-            material.IOR = 1.2;
-            material.needsUpdate = true;
+            // material.needsUpdate = true;
     
             const mesh = new Mesh(geometry, material);
             geometry.computeBoundingBox();
