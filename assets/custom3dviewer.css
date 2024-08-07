@@ -58,3 +58,44 @@
     z-index: 10;
     background-color: rgba(0, 0, 0, .4);
 }
+.camera_controller img {
+    position: absolute;
+}
+.camera_controller img:hover {
+    cursor: pointer;
+}
+.camera_controller {
+    position: absolute;
+    width: 60px;
+    height: 64.6px;
+    bottom: 70px;
+    right: 0px;
+    background: none;
+}
+.camera_controller .leftbtn {
+    height: 43.23%;
+    top: 28.64%;
+    left: 0px;
+}
+.camera_controller .upbtn {
+    width: 47.16%;
+    top: 0px;
+    left: 24.43%;
+}
+.camera_controller .frbtn {
+    width : 47.16%;
+    top: 28.64%;
+    left: 24.43%;
+}
+.camera_controller .downbtn {
+    width: 47.16%;
+    top: 76.1%;
+    left: 24.43%;
+    transform: rotate(180deg);
+}
+.camera_controller .rightbtn {
+    height: 43.23%;
+    top: 28.64%;
+    left: 73.2%;
+    transform: rotate(180deg);
+}

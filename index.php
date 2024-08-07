@@ -40,24 +40,26 @@ function gviewer_shortcode($atts)
 ?>
     <div style="border: 1px solid #CCC; display: inline-block; width: <?php echo $width; ?>px; height: <?php echo $height+2; ?>px; position: relative"  data-url="<?php echo $file; ?>">
         <div class="customized3dViewer" style="width: 100%; height: <?php echo $height; ?>px;" data-url="<?php echo $file; ?>"></div>
-            <div class="loadingScreen" style="position: absolute; top: 0px; width: 100%; height: 100%">
-                <img class="gif-image" src=<?php echo plugin_dir_url(__FILE__) . 'js/icon/loading.gif' ?> alt="Centered GIF Image">
+        <div class="camera_controller">
+            <img src=<?php echo plugin_dir_url(__FILE__) . 'assets/left.png' ?> class="rightbtn" onclick = "setCameraPosition(event)">
+            <img src=<?php echo plugin_dir_url(__FILE__) . 'assets/up.png' ?> class="upbtn" onclick = "setCameraPosition(event)">
+            <img src=<?php echo plugin_dir_url(__FILE__) . 'assets/front.png' ?> class="frbtn" onclick = "setCameraPosition(event)">
+            <img src=<?php echo plugin_dir_url(__FILE__) . 'assets/up.png' ?> class="downbtn" onclick = "setCameraPosition(event)">
+            <img src=<?php echo plugin_dir_url(__FILE__) . 'assets/left.png' ?> class="leftbtn" onclick = "setCameraPosition(event)">
+        </div>
+        <div class="loadingScreen" style="position: absolute; top: 0px; width: 100%; height: 100%">
+            <img class="gif-image" src=<?php echo plugin_dir_url(__FILE__) . 'js/icon/loading.gif' ?> alt="Centered GIF Image">
+        </div>
+        <div class = "animationController" style="position: absolute; bottom: 0px; width: 100%; background-color: rgba(255,255,255, 0.5)">
+            <button class="active up-btn" onclick="changeMesh('<?php echo $file; ?>', event)">U</button>
+            <button class="active lo-btn" onclick="changeMesh('<?php echo $file; ?>', event)">L</button>
+            <button class="meshPlayBtn" onclick="playMesh('<?php echo $file; ?>', event)"><i class='gcis gci-play'></i></button>
+            <input type = "range" min = "0" max = "50" class="animateSlider" oninput = "changeMesh('<?php echo $file; ?>')">
+            <div style="display:inline-block; position: relative; top: -3px">
+                <span class="currentStep">1</span>/<span class="maxStep">50</span>
             </div>
-            <div class = "animationController" style="position: absolute; bottom: 0px; width: 100%; background-color: rgba(255,255,255, 0.5)">
-                <button class="active up-btn" onclick="changeMesh('<?php echo $file; ?>', event)">U</button>
-                <button class="active lo-btn" onclick="changeMesh('<?php echo $file; ?>', event)">L</button>
-                <button class="meshPlayBtn" onclick="playMesh('<?php echo $file; ?>', event)"><i class='gcis gci-play'></i></button>
-                <input type = "range" min = "0" max = "50" class="animateSlider" oninput = "changeMesh('<?php echo $file; ?>')">
-                <div style="display:inline-block; position: relative; top: -3px">
-                    <span class="currentStep">1</span>/<span class="maxStep">50</span>
-                </div>
-            </div>
+        </div>
     </div>
-	<!-- <script>
-		let customPluginDiv = document.getElementById('customized3dViewer');
-		let dataUrlValue = customPluginDiv.getAttribute('data-url');
-		view3DModelR(dataUrlValue, customPluginDiv);
-	</script> -->
 <?php
     return ob_get_clean();
 }
@@ -227,6 +229,13 @@ function mytheme_add_3d_model_modal()
                     </div>
                     <div class="modal-body" id="modelContainer" style = "padding: 0px">
                         
+                    </div>
+                    <div class="camera_controller">
+                        <img src=<?php echo plugin_dir_url(__FILE__) . 'assets/left.png' ?> class="rightbtn" onclick = "setCameraPosition(event)">
+                        <img src=<?php echo plugin_dir_url(__FILE__) . 'assets/up.png' ?> class="upbtn" onclick = "setCameraPosition(event)">
+                        <img src=<?php echo plugin_dir_url(__FILE__) . 'assets/front.png' ?> class="frbtn" onclick = "setCameraPosition(event)">
+                        <img src=<?php echo plugin_dir_url(__FILE__) . 'assets/up.png' ?> class="downbtn" onclick = "setCameraPosition(event)">
+                        <img src=<?php echo plugin_dir_url(__FILE__) . 'assets/left.png' ?> class="leftbtn" onclick = "setCameraPosition(event)">
                     </div>
                     <div class = "animationController">
                         <button class="active up-btn">U</button>

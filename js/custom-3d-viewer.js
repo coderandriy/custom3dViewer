@@ -1,6 +1,5 @@
 jQuery(document).ready(function ($) {
     /**
-     * 
      * Hide Modal
      */
     $(".close", "#View3DModal").click(function () {
@@ -16,26 +15,11 @@ jQuery(document).ready(function ($) {
     });
     document.getElementById("confirmDecodeYes").addEventListener('click', downloadDecodeFile);
     document.getElementById("confirmDecodeNo").addEventListener('click', downloadOriginalFile);
-    // document.querySelectorAll(".animationController .up-btn").forEach(element => {
-    //     element.addEventListener('click', function() {
-    //         this.classList.toggle('active');
-    //         // changeMesh();
-    //     });
-    // })
-    // document.querySelectorAll(".animationController .lo-btn").forEach(element => {
-    //     element.addEventListener('click', function() {
-    //         this.classList.toggle('active');
-    //         // changeMesh();
-    //     });
-    // })
-    // document.querySelector(".animationController #animateSlider").addEventListener('input', function() {
-    //     changeMesh();
-    //   });
     var encodedfileUrl = '', Gurlarray = [];
-    loadedMeshes = {};
+    // loadedMeshes = {}, cameras = {};
 });
 
-var loadedMeshes = {}, meshPlay;
+var loadedMeshes = {}, meshPlay, cameras = {};
 
 function playMesh(url) {
     var playButtonStatus = document.querySelector('div[data-url="'+ url +'"] .animationController .meshPlayBtn');
@@ -188,7 +172,7 @@ function view3DModelR(url, container) {
     }
 
     camera = new OrthographicCamera( container.clientWidth / -10, container.clientWidth / 10, container.clientHeight / 10, container.clientHeight / -10, -500, 1000);
-
+    // camera = new PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
     scene = new Scene();
     scene.background = new Color(0xffffff);
 
@@ -389,6 +373,12 @@ function view3DModelR(url, container) {
             const bbox = geometry.boundingBox;
             const center = bbox.getCenter(new Vector3());
             mesh.position.sub(center);
+            if( extension == 'ply') {
+                const box = new Box3().setFromObject(mesh);
+                mesh.rotation.z += Math.PI;
+                const center = box.getCenter(new Vector3());
+                mesh.position.sub(center);
+            }
 			mesh.castShadow = true;
             scene.add(mesh);
         });
@@ -406,13 +396,44 @@ function view3DModelR(url, container) {
     controls = new ArcballControls(camera, renderer.domElement, scene);
     controls.setGizmosVisible(false); // Optional: Show control gizmos
 
+    controls.enableZoom = true;
+    controls.zoomSpeed = 1.2;
+    controls.minZoom = 0.5;
+    controls.maxZoom = 5;
+
     controls.target.set( 0, 0, 0 );
-    camera.position.set(40, 40, 40);
+    camera.position.set(0, -70, 50);
     controls.update();
 
+    let initialDistance = null;
+    let initialZoom = camera.zoom;
+
+    window.addEventListener('touchmove', function(event) {
+        if (event.touches.length === 2) {
+            const dx = event.touches[0].pageX - event.touches[1].pageX;
+            const dy = event.touches[0].pageY - event.touches[1].pageY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (initialDistance) {
+                const zoomFactor = distance / initialDistance;
+                camera.zoom = Math.min(Math.max(initialZoom * zoomFactor, controls.minZoom), controls.maxZoom);
+                camera.updateProjectionMatrix();
+            } else {
+                initialDistance = distance;
+                initialZoom = camera.zoom;
+            }
+        }
+    }, false);
+    
+    window.addEventListener('touchend', function(event) {
+        if (event.touches.length < 2) {
+            initialDistance = null;
+            initialZoom = camera.zoom;
+        }
+    }, false);
 
 
-
+    cameras[url] = camera
 
 
     window.addEventListener('resize', onWindowResize);
@@ -431,4 +452,36 @@ function view3DModelR(url, container) {
         renderer.render(scene, camera);
 
     }
+}
+
+function setCameraPosition(event) {
+    var target = event.target;
+    var cameraController = cameras[target.parentElement.parentElement.getAttribute('data-url')];
+    switch (target.classList[0]) {
+        case 'rightbtn':
+            cameraController.position.set(-70, 0, 0);
+            cameraController.up.set(0, 0, 1);
+            break;
+        case 'leftbtn':
+            cameraController.position.set(70, 0, 0);
+            cameraController.up.set(0, 0, 1);
+            break;
+        case 'frbtn':
+            cameraController.position.set(0, -70, 0);
+            cameraController.up.set(0, 0, 1);
+            break;
+        case 'upbtn':
+            cameraController.position.set(0, 0, -70);
+            cameraController.up.set(0, -1, 0);
+            break;
+        case 'downbtn':
+            cameraController.position.set(0, 0, 70);
+            cameraController.up.set(0, 1, 0);
+            break;
+        default:
+            break;
+    }
+
+    cameraController.lookAt(0, 0, 0);
+
 }
