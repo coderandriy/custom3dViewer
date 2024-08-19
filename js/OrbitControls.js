@@ -1,6 +1,6 @@
-const _changeEvent = { type: 'change' };
-const _startEvent = { type: 'start' };
-const _endEvent = { type: 'end' };
+const orbit_changeEvent = { type: 'change' };
+const orbit_startEvent = { type: 'start' };
+const orbit_endEvent = { type: 'end' };
 const _ray_orbit = new Ray();
 const _plane = new Plane();
 const TILT_LIMIT = Math.cos( 70 * MathUtils.DEG2RAD );
@@ -140,7 +140,7 @@ class OrbitControls extends EventDispatcher {
 			scope.object.zoom = scope.zoom0;
 
 			scope.object.updateProjectionMatrix();
-			scope.dispatchEvent( _changeEvent );
+			scope.dispatchEvent( orbit_changeEvent );
 
 			scope.update();
 
@@ -384,7 +384,7 @@ class OrbitControls extends EventDispatcher {
 					8 * ( 1 - lastQuaternion.dot( scope.object.quaternion ) ) > EPS ||
 					lastTargetPosition.distanceToSquared( scope.target ) > EPS ) {
 
-					scope.dispatchEvent( _changeEvent );
+					scope.dispatchEvent( orbit_changeEvent );
 
 					lastPosition.copy( scope.object.position );
 					lastQuaternion.copy( scope.object.quaternion );
@@ -1050,7 +1050,7 @@ class OrbitControls extends EventDispatcher {
 					scope.domElement.removeEventListener( 'pointermove', onPointerMove );
 					scope.domElement.removeEventListener( 'pointerup', onPointerUp );
 
-					scope.dispatchEvent( _endEvent );
+					scope.dispatchEvent( orbit_endEvent );
 
 					state = STATE.NONE;
 
@@ -1161,7 +1161,7 @@ class OrbitControls extends EventDispatcher {
 
 			if ( state !== STATE.NONE ) {
 
-				scope.dispatchEvent( _startEvent );
+				scope.dispatchEvent( orbit_startEvent );
 
 			}
 
@@ -1205,11 +1205,11 @@ class OrbitControls extends EventDispatcher {
 
 			event.preventDefault();
 
-			scope.dispatchEvent( _startEvent );
+			scope.dispatchEvent( orbit_startEvent );
 
 			handleMouseWheel( customWheelEvent( event ) );
 
-			scope.dispatchEvent( _endEvent );
+			scope.dispatchEvent( orbit_endEvent );
 
 		}
 
@@ -1363,7 +1363,7 @@ class OrbitControls extends EventDispatcher {
 
 			if ( state !== STATE.NONE ) {
 
-				scope.dispatchEvent( _startEvent );
+				scope.dispatchEvent( orbit_startEvent );
 
 			}
 

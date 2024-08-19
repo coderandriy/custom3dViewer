@@ -93,6 +93,8 @@ function three_scripts()
     wp_enqueue_script('stl_loader', plugin_dir_url(__FILE__) . 'js/STLLoader.js', array('jquery'), null, true);
     wp_enqueue_script('ply_loader', plugin_dir_url(__FILE__) . 'js/PLYLoader.js', array('jquery'), null, true);
     wp_enqueue_script('arcball_controller', plugin_dir_url(__FILE__) . 'js/ArcballControls.js', array('jquery'), null, true);
+    wp_enqueue_script('orbit_controller', plugin_dir_url(__FILE__) . 'js/OrbitControls.js', array('jquery'), null, true);
+    // wp_enqueue_script('transform_controller', plugin_dir_url(__FILE__) . 'js/TransformControls.js', array('jquery'), null, true);
     wp_enqueue_script('zip_controller', 'https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js', array('jquery'), null, true);
 }
 add_action('wp_enqueue_scripts', 'three_scripts');
